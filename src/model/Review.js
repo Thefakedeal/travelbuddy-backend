@@ -29,6 +29,6 @@ const ReviewSchema = new Schema({
 
 ReviewSchema.index({user: 1, place: 1}, {unique: true,dropDups: true})
 
-const Review = mongoose.model(ReviewSchema,'Review');
+const Review = mongoose.model('Review',ReviewSchema);
 
 module.exports = Review
