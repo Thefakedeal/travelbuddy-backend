@@ -18,7 +18,32 @@ const PlaceSchema = new Schema({
         type: String,
         required: false
     },
-    reviews: [{type: Schema.Types.ObjectId, ref: 'Review'}]
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+},
+{
+    toJSON : {virtuals: true},
+    toObject : {virtuals: true},
+    timestamps: true,
+}
+)
+
+PlaceSchema.virtual('reviews',{
+    ref: 'Review',
+    localField: 'id',
+    foreignField: 'place',
+    justOne: false,
+    options: {sort: -1}
+})
+
+PlaceSchema.virtual('images',{
+    ref: 'Image',
+    localField: 'id',
+    foreignField: 'place',
+    justOne: false,
+    options: {sort: -1}
 })
 
 const Place = mongoose.model('Place',PlaceSchema);

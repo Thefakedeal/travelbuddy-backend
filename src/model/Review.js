@@ -16,9 +16,19 @@ const ReviewSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User'
+    },
+    place: {
+        type: Schema.Types.ObjectId,
+        ref: 'Place'
     }
+},{
+    toJSON : {virtuals: true},
+    toObject : {virtuals: true},
+    timestamps: true,
 }) 
 
-const Review = mongoose.Model(ReviewSchema,'Review');
+ReviewSchema.index({user: 1, place: 1}, {unique: true,dropDups: true})
+
+const Review = mongoose.model(ReviewSchema,'Review');
 
 module.exports = Review

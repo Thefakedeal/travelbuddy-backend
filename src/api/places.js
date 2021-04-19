@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Place = require("../model/Place");
+const Review = require("../model/Review")
 const mongoose = require("mongoose");
 
 router.get("/", async (req, res) => {
@@ -7,7 +8,7 @@ router.get("/", async (req, res) => {
     const places = await Place.find();
     res.json(places);
   } catch (err) {
-    res.send(err);
+    res.status(400).send(err);
   }
 });
 
@@ -30,7 +31,7 @@ router.post("/", async (req, res) => {
     const placeDoc = await place.save();
     res.json(placeDoc);
   } catch (err) {
-    res.send(err);
+    res.status(400).send(err);
   }
 });
 
@@ -42,7 +43,7 @@ router.put("/:id", async (req, res) => {
     );
     res.json(place);
   } catch (err) {
-    res.json(err);
+    res.status(400).send(err);
   }
 });
 
@@ -51,7 +52,21 @@ router.delete("/:id",async (req,res)=>{
     const place = await Place.findByIdAndDelete(req.params.id);
     res.json(place)
   }catch(err){
-    res.json(err)
+    res.status(400).json(err)
   }
 })
+
+router.get('/:id/reviews', async (req,res)=>{
+  try{
+    const reviews= await Review.find({
+      place: req.params.id,
+    }).populate('user');
+    
+    res.json(reviews);
+  }catch(err){
+    res.status(400).json(err)
+  }
+});
+
+
 module.exports = router;
