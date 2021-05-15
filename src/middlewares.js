@@ -25,7 +25,8 @@ const userAuthHandler = async (req, res, next) => {
   const tokenID = req.headers.authorization.split(' ')[1];
 
   try {
-    const token = await Token.findById(tokenID).populate("user","-password");
+    req.token = tokenID;
+    const token = await Token.findOne({token: tokenID}).populate("user","-password");
     if (!token || !token.user)
       return res.status(401).json({ message: "Unauthenticated" });
     req.user = token.user;
@@ -45,7 +46,8 @@ const adminAuthHandler = async (req, res, next) => {
   const tokenID = req.headers.authorization.split(' ')[1];
 
   try {
-    const token = await Token.findById(tokenID).populate("user","-password");
+    req.token = tokenID;
+    const token = await Token.findOne({token: tokenID}).populate("user","-password");
     if (!token || !token.user)
       return res.status(401).json({ message: "Unauthenticated" });
     if(!token.user.is_admin)

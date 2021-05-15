@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const { randomString } = require('../../helpers/random')
 const User = require('../../model/User')
 const Token = require('../../model/Token')
 
@@ -17,9 +18,10 @@ router.post('/', async (req,res)=>{
         
         const token = new Token();
         token.user = savedUser._id;
+        token.token = randomString(30);
         const savedToken = await token.save();
 
-        res.status(201).json({token: savedToken._id});
+        res.status(201).json({token: savedToken.token});
     }catch(err){
         res.status(400).send(err);
     }

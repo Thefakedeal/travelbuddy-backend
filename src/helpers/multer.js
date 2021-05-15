@@ -8,7 +8,7 @@ const storage = multer.diskStorage(
             cb(null,'./static/images');
         },
         filename: (req,file,cb)=>{
-            const randomString = crypto.randomBytes(25).toString('hex')
+            const randomString = crypto.randomBytes(50).toString('hex')
             cb(null,`${Date.now()}${randomString}${path.extname(file.originalname)}`)
         }
     }
