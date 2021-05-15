@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const User = require('../../model/User')
+const Token = require('../../model/Token')
 
 router.post('/', async (req,res)=>{
     try{
@@ -14,9 +14,12 @@ router.post('/', async (req,res)=>{
         user.password = hashedPassword;
         user.is_admin = false;
         const savedUser= await user.save();
-    
-        const token = jwt.sign({user_id: savedUser._id,is_admin: savedUser.is_admin},process.env.JWT_KEY);
-        res.status(201).json({token: token});
+        
+        const token = new Token();
+        token.user = savedUser._id;
+        const savedToken = await token.save();
+
+        res.status(201).json({token: savedToken._id});
     }catch(err){
         res.status(400).send(err);
     }

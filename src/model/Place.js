@@ -22,6 +22,10 @@ const PlaceSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     },
+    featured_image: {
+        type: String,
+        required: true,
+    }
 },
 {
     toJSON : {virtuals: true},

@@ -3,6 +3,7 @@ const express = require('express');
 const places = require('./places')
 const signup = require('./auth/signup')
 const login = require('./auth/login');
+const logout = require('./auth/logout')
 const router = express.Router();
 
 
@@ -14,6 +15,7 @@ router.get('/', (req, res) => {
 
 router.use('/signup', signup);
 router.use('/login', login);
+router.use('/logout', logout);
 router.use('/places',places);
 
 module.exports = router;
