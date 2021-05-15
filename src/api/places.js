@@ -22,21 +22,16 @@ router.get("/:id", async (req, res) => {
 });
 
 
-const placesUpload = upload.fields([
-  {
-    name: 'featured_image',
-    maxCount:1
-  },
-]);
+const featuredUpload = upload.single('featured_image')
 
-router.post("/", placesUpload, async (req, res) => {
+router.post("/", featuredUpload, async (req, res) => {
   try {
     const place = new Place();
     place.name = req.body.name;
     place.lat = req.body.lat;
     place.lon = req.body.lon;
     place.description = req.body.description;
-    place.featured_image = req.files['featured_image'][0].path;
+    place.featured_image = req.file.path;
     const placeDoc = await place.save();
     res.json(placeDoc);
   } catch (err) {
@@ -44,14 +39,19 @@ router.post("/", placesUpload, async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", featuredUpload,async (req, res) => {
   try {
+    const featured_image =req.file;
+    if(featured_image){
+      req.body.featured_image = featured_image.path;
+    }
     const place = await Place.updateOne(
       { _id: req.params.id },
       { $set: { ...req.body } }
     );
     res.json(place);
   } catch (err) {
+    console.log(err)
     res.status(400).send(err);
   }
 });
