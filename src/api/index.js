@@ -7,7 +7,7 @@ const logout = require('./auth/logout')
 const router = express.Router();
 
 
-router.get('/', (req, res) => {
+router.get('/',  (req, res) => {
   res.json({
     message: 'API - 👋🌎🌍🌏'
   });
