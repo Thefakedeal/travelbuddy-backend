@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const Place = require("../model/Place");
 const Review = require("../model/Review")
-const mongoose = require("mongoose");
+const upload = require('../helpers/multer');
 
 router.get("/", async (req, res) => {
   try {
@@ -21,13 +21,22 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+
+const placesUpload = upload.fields([
+  {
+    name: 'featured_image',
+    maxCount:1
+  },
+]);
+
+router.post("/", placesUpload, async (req, res) => {
   try {
     const place = new Place();
     place.name = req.body.name;
     place.lat = req.body.lat;
     place.lon = req.body.lon;
     place.description = req.body.description;
+    place.featured_image = req.files['featured_image'][0].path;
     const placeDoc = await place.save();
     res.json(placeDoc);
   } catch (err) {

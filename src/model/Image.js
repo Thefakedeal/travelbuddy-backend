@@ -12,6 +12,10 @@ const ImageSchema = new mongoose.Schema({
     user: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User"
+    },
+    visible: {
+        type: Boolean,
+        default: false,
     }
 },{
     toJSON: true,
