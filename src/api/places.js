@@ -84,16 +84,5 @@ router.delete("/:id",userAuthHandler, async (req, res) => {
   }
 });
 
-router.get("/:id/reviews", async (req, res) => {
-  try {
-    const reviews = await Review.find({
-      place: req.params.id,
-    }).populate("user");
-
-    res.json(reviews);
-  } catch (err) {
-    res.status(400).json(err);
-  }
-});
 
 module.exports = router;

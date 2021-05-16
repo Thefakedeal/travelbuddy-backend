@@ -5,7 +5,6 @@ const { Schema } = mongoose;
 const ReviewSchema = new Schema({
     comment: {
         type: String,
-        required: true
     },
     stars: {
         type: Number,
@@ -15,11 +14,13 @@ const ReviewSchema = new Schema({
     },
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true,
     },
     place: {
         type: Schema.Types.ObjectId,
-        ref: 'Place'
+        ref: 'Place',
+        required: true,
     }
 },{
     toJSON : {virtuals: true},

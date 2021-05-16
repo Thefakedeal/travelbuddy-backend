@@ -9,6 +9,11 @@ mongoose.connect(process.env.MONGO_URL,{ useNewUrlParser: true, useUnifiedTopolo
   }
 })
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   /* eslint-disable no-console */
