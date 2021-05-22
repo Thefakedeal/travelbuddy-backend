@@ -1,4 +1,3 @@
-const User = require('./model/User');
 const Token = require('./model/Token');
 
 function notFound(req, res, next) {
@@ -28,7 +27,7 @@ const userAuthHandler = async (req, res, next) => {
     if (!token || !token.user) return res.status(401).json({ message: 'Unauthenticated' });
     req.user = token.user;
 
-    next();
+    return next();
   } catch (err) {
     return res.status(500).json({ message: 'Something Went Wrong' });
   }
@@ -46,9 +45,9 @@ const adminAuthHandler = async (req, res, next) => {
 
     req.user = token.user;
 
-    next();
+    return next();
   } catch (err) {
-    res.status(500).json({ message: 'Something Went Wrong' });
+    return res.status(500).json({ message: 'Something Went Wrong' });
   }
 };
 
