@@ -1,18 +1,20 @@
-const express = require("express");
+const express = require('express');
+
 const router = express.Router();
-const upload = require("../../helpers/multer");
-const { userAuthHandler } = require("../../middlewares");
+const upload = require('../../helpers/multer');
+const { userAuthHandler } = require('../../middlewares');
+
 router.use(userAuthHandler);
 
-router.get("/", (req, res) => {
-  const user = req.user;
+router.get('/', (req, res) => {
+  const { user } = req;
   res.json({ user });
 });
 
-const imageUpload = upload.single("image");
-router.put("/", userAuthHandler, imageUpload, async (req, res) => {
+const imageUpload = upload.single('image');
+router.put('/', userAuthHandler, imageUpload, async (req, res) => {
   try {
-    const user = req.user;
+    const { user } = req;
     const { name, email } = req.body;
     const image = req.file;
     if (name) user.name = name;

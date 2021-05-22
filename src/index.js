@@ -1,13 +1,13 @@
-const app = require('./app');
 const mongoose = require('mongoose');
+const app = require('./app');
 
-mongoose.connect(process.env.MONGO_URL,{ useNewUrlParser: true, useUnifiedTopology: true },(err)=>{
-  if(!err){
-    console.log('Connected')
-  }else{
-    console.log(err)
+mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }, (err) => {
+  if (!err) {
+    console.log('Connected');
+  } else {
+    console.log(err);
   }
-})
+});
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
