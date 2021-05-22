@@ -1,38 +1,42 @@
-const router = require('express').Router();
-const Place = require('../model/Place');
-const upload = require('../helpers/multer');
-const { userAuthHandler } = require('../middlewares');
+const router = require("express").Router();
+const Place = require("../model/Place");
+const upload = require("../helpers/multer");
+const { userAuthHandler } = require("../middlewares");
+const { slice, remove } = require("../helpers/objects");
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const places = await Place.find({
-      lat: {
-        $gte: req.query.minLat,
-        $lte: req.query.minLat,
+    const places = await Place.find(
+      {
+        lat: {
+          $gte: req.query.minLat,
+          $lte: req.query.minLat,
+        },
+        lon: {
+          $gte: req.query.minLon,
+          $lte: req.query.minLon,
+        },
       },
-      lon: {
-        $gte: req.query.minLon,
-        $lte: req.query.minLon,
-      },
-    });
+      { flagged: 0 }
+    );
     res.json(places);
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params.id, { flagged: 0 });
     res.json(place);
   } catch (err) {
     res.status(404).send(err);
   }
 });
 
-router.get('/:id/nearby', async (req, res, next) => {
+router.get("/:id/nearby", async (req, res, next) => {
   try {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params.id, { flagged: 0 });
     const minLat = place.lat - 0.1;
     const maxLat = parseFloat(place.lat) + 0.1;
     const minLon = place.lon - 0.1;
@@ -53,9 +57,9 @@ router.get('/:id/nearby', async (req, res, next) => {
   }
 });
 
-const featuredUpload = upload.single('featured_image');
+const featuredUpload = upload.single("featured_image");
 
-router.post('/', userAuthHandler, featuredUpload, async (req, res) => {
+router.post("/", userAuthHandler, featuredUpload, async (req, res) => {
   try {
     const featuredImage = req.file;
     const place = new Place();
@@ -68,15 +72,15 @@ router.post('/', userAuthHandler, featuredUpload, async (req, res) => {
     }
     place.user = req.user._id;
     const placeDoc = await place.save();
-    res.json(placeDoc);
+    res.json(remove(placeDoc.toJSON(), ["flagged"]));
   } catch (err) {
     res.status(400).send(err);
   }
 });
 
-router.put('/:id', userAuthHandler, featuredUpload, async (req, res) => {
+router.put("/:id", userAuthHandler, featuredUpload, async (req, res) => {
   try {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params.id, { flagged: 0 });
     // Allow Update only of place belongs to user
     if (place.user.toString() !== req.user.id) {
       return res
@@ -89,8 +93,8 @@ router.put('/:id', userAuthHandler, featuredUpload, async (req, res) => {
       req.body.featured_image = `/images/${featured_image.filename}`;
     }
 
-    await Place.updateOne({ _id: req.params.id }, { $set: { ...req.body } });
-
+    const payload = slice(req.body, ["name", "lat", "lon", "description"]);
+    await Place.updateOne({ _id: req.params.id }, { $set: { ...payload } });
     res.json(place);
   } catch (err) {
     console.log(err);
@@ -98,9 +102,9 @@ router.put('/:id', userAuthHandler, featuredUpload, async (req, res) => {
   }
 });
 
-router.delete('/:id', userAuthHandler, async (req, res) => {
+router.delete("/:id", userAuthHandler, async (req, res) => {
   try {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params.id, { flagged: 0 });
 
     if (place.user.toString() !== req.user.id) {
       return res
@@ -112,6 +116,18 @@ router.delete('/:id', userAuthHandler, async (req, res) => {
     res.json(place);
   } catch (err) {
     res.status(400).json(err);
+  }
+});
+
+
+router.post('/:id/flag',userAuthHandler, async(req,res)=>{
+  try{
+    const place = await Place.findById(req.params.id);
+    place.flagged = true;
+    const updatedPlace = await place.save()
+    res.json({message: "Place is Flagged", place: updatedPlace});
+  }catch(err){
+    next(err);
   }
 });
 

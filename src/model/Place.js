@@ -27,6 +27,10 @@ const PlaceSchema = new Schema({
   featured_image: {
     type: String,
     required: true,
+  },
+  flagged: {
+    type: Boolean,
+    default: false,
   }
 },
 {

@@ -1,15 +1,15 @@
-const slice = (object = {}, keys = []) => {
+const slice = (object = new Object(), keys = new Array()) => {
   const requiredKeys = Object.keys(object).filter((key) => keys.includes(key));
-  const newObject = {};
+  const newObject = new Object();
   requiredKeys.forEach((key) => {
     newObject[key] = object[key];
   });
   return newObject;
 };
 
-const remove = (object = {}, keys = []) => {
+const remove = (object = new Object(), keys = new Array()) => {
   const requiredKeys = Object.keys(object).filter((key) => !keys.includes(key));
-  const newObject = {};
+  const newObject = new Object();
   requiredKeys.forEach((key) => {
     newObject[key] = object[key];
   });
