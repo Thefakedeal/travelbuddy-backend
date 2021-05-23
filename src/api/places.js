@@ -124,7 +124,7 @@ router.post('/:id/flag', userAuthHandler, async (req, res) => {
     const place = await Place.findById(req.params.id);
     place.flagged = true;
     const updatedPlace = await place.save();
-    res.json({ message: 'Place is Flagged', place: updatedPlace });
+    res.json({ message: 'Place is Flagged'});
   } catch (err) {
     next(err);
   }
