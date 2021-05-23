@@ -21,6 +21,10 @@ const ReviewSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Place',
     required: true,
+  },
+  flagged: {
+    type: Boolean,
+    default: false,
   }
 }, {
   toJSON: { virtuals: true },
