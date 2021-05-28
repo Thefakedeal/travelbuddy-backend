@@ -31,6 +31,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
     res.json(place);
   } catch (err) {
     res.status(404).send(err);
@@ -40,6 +41,7 @@ router.get("/:id", async (req, res) => {
 router.get("/:id/nearby", async (req, res, next) => {
   try {
     const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
     const minLat = place.lat - 0.1;
     const maxLat = parseFloat(place.lat) + 0.1;
     const minLon = place.lon - 0.1;
@@ -84,6 +86,7 @@ router.post("/", userAuthHandler, featuredUpload, async (req, res) => {
 router.put("/:id", userAuthHandler, featuredUpload, async (req, res) => {
   try {
     const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
     // Allow Update only of place belongs to user
     if (place.user.toString() !== req.user.id) {
       return res
@@ -111,6 +114,7 @@ router.put("/:id", userAuthHandler, featuredUpload, async (req, res) => {
 router.delete("/:id", userAuthHandler, async (req, res) => {
   try {
     const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
 
     if (place.user.toString() !== req.user.id) {
       return res
@@ -125,9 +129,10 @@ router.delete("/:id", userAuthHandler, async (req, res) => {
   }
 });
 
-router.post("/:id/flag", userAuthHandler, async (req, res,next) => {
+router.post("/:id/flag", userAuthHandler, async (req, res, next) => {
   try {
-    const place = await Place.findById(req.params.id);
+    const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
     place.flagged = true;
     const updatedPlace = await place.save();
     res.json({ message: "Place is Flagged" });
@@ -136,11 +141,13 @@ router.post("/:id/flag", userAuthHandler, async (req, res,next) => {
   }
 });
 
-router.get("/:id/reviews", async (req, res,next) => {
+router.get("/:id/reviews", async (req, res, next) => {
   try {
+    const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
     const reviews = await Review.find(
       {
-        place: req.params.id, 
+        place: req.params.id,
       },
       { flagged: 0 }
     ).populate("user", "-password");
@@ -150,8 +157,28 @@ router.get("/:id/reviews", async (req, res,next) => {
   }
 });
 
-router.get("/:id/images", async (req, res,next) => {
+router.get("/:id/review/user", userAuthHandler, async (req, res, next) => {
   try {
+    const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
+    const review = await Review.findOne(
+      {
+        place: req.params.id,
+        user: req.user.id,
+      },
+      { flagged: 0 }
+    ).populate("user", "-password");
+    if (!review) res.sendStatus(404);
+    res.json(review);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/:id/images", async (req, res, next) => {
+  try {
+    const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
     const images = await ImageModel.find(
       {
         place: req.params.id,
@@ -159,9 +186,27 @@ router.get("/:id/images", async (req, res,next) => {
       {
         flagged: 0,
       },
-      {
+      {}
+    ).populate("user", "-password");
+    res.json(images);
+  } catch (err) {
+    return next(err);
+  }
+});
 
-      }
+router.get("/:id/images/user", userAuthHandler, async (req, res, next) => {
+  try {
+    const place = await Place.findById(req.params.id, { flagged: 0 });
+    if (!place) res.sendStatus(404);
+    const images = await ImageModel.find(
+      {
+        place: req.params.id,
+        user: req.user.id,
+      },
+      {
+        flagged: 0,
+      },
+      {}
     ).populate("user", "-password");
     res.json(images);
   } catch (err) {
