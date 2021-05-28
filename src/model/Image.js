@@ -13,10 +13,6 @@ const ImageSchema = new mongoose.Schema({
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User'
   },
-  visible: {
-    type: Boolean,
-    default: false,
-  },
   flagged: {
     type: Boolean,
     default: false,

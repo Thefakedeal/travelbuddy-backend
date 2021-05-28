@@ -140,7 +140,7 @@ router.get("/:id/reviews", async (req, res,next) => {
   try {
     const reviews = await Review.find(
       {
-        place: req.params.id,
+        place: req.params.id, 
       },
       { flagged: 0 }
     ).populate("user", "-password");
@@ -154,7 +154,7 @@ router.get("/:id/images", async (req, res,next) => {
   try {
     const images = await ImageModel.find(
       {
-        // place: req.params.id,
+        place: req.params.id,
       },
       {
         flagged: 0,
