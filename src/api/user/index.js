@@ -19,7 +19,7 @@ router.put("/", imageUpload, async (req, res) => {
     const image = req.file;
     if (name) user.name = name;
     if (email) user.email = email;
-    if (image) user.image = image.path;
+    if (image) user.image =`/images/${image.filename}`
     await user.save();
     res.json(user);
   } catch (err) {
