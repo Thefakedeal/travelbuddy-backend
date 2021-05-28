@@ -17,10 +17,14 @@ const ImageSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-}, {
-  toJSON: true,
-  toObject: true,
-  timestamps: true
+  flagged: {
+    type: Boolean,
+    default: false,
+  }
+},{
+  toJSON:{ virtuals: true},
+  toObject: {virtuals: true},
+  timestamps: {virtuals: true}
 });
 
 const Image = mongoose.model('Image', ImageSchema);

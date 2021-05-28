@@ -6,6 +6,7 @@ const login = require('./auth/login');
 const logout = require('./auth/logout');
 const user = require('./user');
 const reviews = require('./reviews');
+const images = require('./images');
 
 const router = express.Router();
 router.get('/', (req, res) => {
@@ -20,5 +21,6 @@ router.use('/logout', logout);
 router.use('/places', places);
 router.use('/user', user);
 router.use('/reviews', reviews);
+router.use('/images', images);
 
 module.exports = router;

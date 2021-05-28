@@ -41,7 +41,7 @@ const PlaceSchema = new Schema({
 
 PlaceSchema.virtual('reviews', {
   ref: 'Review',
-  localField: 'id',
+  localField: '_id',
   foreignField: 'place',
   justOne: false,
   options: { sort: -1 }
@@ -49,7 +49,7 @@ PlaceSchema.virtual('reviews', {
 
 PlaceSchema.virtual('images', {
   ref: 'Image',
-  localField: 'id',
+  localField: '_id',
   foreignField: 'place',
   justOne: false,
   options: { sort: -1 }

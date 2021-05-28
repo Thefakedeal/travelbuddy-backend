@@ -4,18 +4,8 @@ const router = express.Router();
 const Review = require('../model/Review');
 const { userAuthHandler } = require('../middlewares');
 const { remove } = require('../helpers/objects');
+const Place = require('../model/Place');
 
-router.get('/', async (req, res, next) => {
-  try {
-    const { placeID } = req.query;
-    const reviews = await Review.find({
-      place: placeID,
-    },{flagged: 0}).populate('user', '-password');
-    res.json(reviews);
-  } catch (err) {
-    next(err);
-  }
-});
 
 router.post('/', userAuthHandler, async (req, res, next) => {
   try {
