@@ -15,6 +15,8 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+app.use(express.static('static'));
+
 app.get('/', (req, res) => {
   res.json({
     message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
@@ -22,7 +24,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1', api);
-
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
 

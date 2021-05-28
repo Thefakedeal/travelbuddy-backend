@@ -44,7 +44,7 @@ router.delete("/:id", userAuthHandler, async (req, res, next) => {
 });
 
 
-router.post('/:id/flag',userAuthHandler,(req,res,next)=>{
+router.post('/:id/flag',userAuthHandler,async (req,res,next)=>{
   try{
     const image = Image.findById(req.params.id);
     image.flagged = true;
