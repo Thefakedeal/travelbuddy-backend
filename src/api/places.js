@@ -28,6 +28,17 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/user", userAuthHandler, async (req, res, next) => {
+  try {
+    const places = await Place.find({
+      user: req.user.id,
+    });
+    res.json(places);
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const place = await Place.findById(req.params.id, { flagged: 0 });
