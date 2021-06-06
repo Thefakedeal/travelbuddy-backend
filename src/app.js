@@ -19,7 +19,7 @@ app.use(express.static('static'));
 
 app.get('/', (req, res) => {
   res.json({
-    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
+    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄 Welcome To Travel Buddy API'
   });
 });
 

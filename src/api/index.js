@@ -7,6 +7,7 @@ const logout = require('./auth/logout');
 const user = require('./user');
 const reviews = require('./reviews');
 const images = require('./images');
+const admin = require('./admin');
 
 const router = express.Router();
 router.get('/', (req, res) => {
@@ -15,6 +16,7 @@ router.get('/', (req, res) => {
   });
 });
 
+router.use('/admin', admin);
 router.use('/signup', signup);
 router.use('/login', login);
 router.use('/logout', logout);
