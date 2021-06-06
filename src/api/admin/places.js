@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const Place = require("../../model/Place");
+const Review = require('../../model/Review');
+const ImageModel = require('../../model/Image');
 
 router.get("/", async (req, res, next) => {
   try {
