@@ -11,14 +11,9 @@ router.get("/", async (req, res) => {
   try {
     const places = await Place.find(
       {
-        lat: {
-          $gte: req.query.minLat,
-          $lte: req.query.maxLat,
-        },
-        lon: {
-          $gte: req.query.minLon,
-          $lte: req.query.maxLon,
-        },
+        location: {
+          $geoWithin: { $centerSphere: [ [ req.query.lon, req.query.lat ], (10/6378) ] }
+          }
       },
       { flagged: 0 }
     );
@@ -53,19 +48,19 @@ router.get("/:id/nearby", async (req, res, next) => {
   try {
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
-    const minLat = place.lat - 0.1;
-    const maxLat = parseFloat(place.lat) + 0.1;
-    const minLon = place.lon - 0.1;
-    const maxLon = parseFloat(place.lon) + 0.1;
+    
     const places = await Place.find({
-      lat: {
-        $gte: minLat,
-        $lte: maxLat,
+      location: {
+        $near: {
+          type: "Point",
+          coordinates: place.location.coordinates
+        },
+        $maxDistance: 10000,
+        $minDistance: 0
       },
-      lon: {
-        $gte: minLon,
-        $lte: maxLon,
-      },
+      _id: {
+        $ne: place._id
+      }
     });
     res.json(places);
   } catch (err) {
@@ -75,13 +70,17 @@ router.get("/:id/nearby", async (req, res, next) => {
 
 const featuredUpload = upload.single("featured_image");
 
-router.post("/", userAuthHandler, featuredUpload, async (req, res) => {
+router.post("/", userAuthHandler, featuredUpload, async (req, res,next) => {
   try {
     const featuredImage = req.file;
     const place = new Place();
     place.name = req.body.name;
-    place.lat = req.body.lat;
-    place.lon = req.body.lon;
+    place.location = {
+      type: "Point",
+      coordinates: [req.body.lon, req.body.lat]
+    }
+    // place.lat = req.body.lat;
+    // place.lon = req.body.lon;
     place.description = req.body.description;
     if (featuredImage) {
       place.featured_image = `/images/${featuredImage.filename}`;
@@ -90,7 +89,7 @@ router.post("/", userAuthHandler, featuredUpload, async (req, res) => {
     const placeDoc = await place.save();
     res.json(remove(placeDoc.toJSON(), ["flagged"]));
   } catch (err) {
-    res.status(400).send(err);
+    next(err)
   }
 });
 
@@ -110,7 +109,13 @@ router.put("/:id", userAuthHandler, featuredUpload, async (req, res) => {
       req.body.featured_image = `/images/${featured_image.filename}`;
     }
 
-    const payload = slice(req.body, ["name", "lat", "lon", "description"]);
+    if(req.body.lat,req.body.lon){
+      req.body.location = {
+        type: "Point",
+        coordinates: [req.body.lon,req.body.lat]
+      }
+    }
+    const payload = slice(req.body, ["name","featured_image","location", "description"]);
     const newPlace = await Place.updateOne(
       { _id: req.params.id },
       { $set: { ...payload } }

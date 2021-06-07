@@ -7,13 +7,14 @@ const PlaceSchema = new Schema({
     type: String,
     required: true,
   },
-  lat: {
-    type: Number,
-    required: true,
-  },
-  lon: {
-    type: Number,
-    required: true,
+  location:{
+    type:{
+      type: String, 
+      enum: ["Point"],
+      default: "Point",
+      required: true
+    },
+    coordinates: [Number],
   },
   description: {
     type: String,
@@ -38,6 +39,8 @@ const PlaceSchema = new Schema({
   toObject: { virtuals: true },
   timestamps: true,
 });
+
+PlaceSchema.index({location:'2dsphere'})
 
 PlaceSchema.virtual('reviews', {
   ref: 'Review',
