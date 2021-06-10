@@ -5,7 +5,8 @@ const ImageModel = require("../model/Image");
 const upload = require("../helpers/multer");
 const { userAuthHandler } = require("../middlewares");
 const { slice, remove } = require("../helpers/objects");
-const {query, validationResult} = require('express-validator');
+const {query, param, validationResult} = require('express-validator');
+const mongoose = require('mongoose')
 
 router.get("/", 
 query('lat').isFloat({min:-90,max:90}),
@@ -45,8 +46,17 @@ router.get("/user", userAuthHandler, async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", 
+param('id').custom((value)=>{
+  const isValid = mongoose.Types.ObjectId.isValid(value);
+  if(!isValid) throw new Error("Invalid ID");
+  return isValid;
+})
+,
+async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     res.json(place);
