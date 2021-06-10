@@ -5,11 +5,18 @@ const ImageModel = require("../model/Image");
 const upload = require("../helpers/multer");
 const { userAuthHandler } = require("../middlewares");
 const { slice, remove } = require("../helpers/objects");
-const mongoose = require("mongoose");
+const {query, validationResult} = require('express-validator');
 
-router.get("/", async (req, res) => {
+router.get("/", 
+query('lat').isFloat({min:-90,max:90}),
+query('lon').isFloat({min:-180,max:180}),
+async (req, res,next) => {
   try {
-    const places = await Place.find(
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const placeQuery = Place.find(
       {
         location: {
           $geoWithin: { $centerSphere: [ [ req.query.lon, req.query.lat ], (10/6378) ] }
@@ -17,9 +24,13 @@ router.get("/", async (req, res) => {
       },
       { flagged: 0 }
     );
+    if(req.query.name){
+      placeQuery.where('name',{$regex: req.query.name, $options: 'i'})
+    }
+    const places = await placeQuery.exec();
     res.json(places);
   } catch (err) {
-    res.status(400).send(err);
+    next(err)
   }
 });
 
