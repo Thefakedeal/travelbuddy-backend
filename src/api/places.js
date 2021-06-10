@@ -65,8 +65,16 @@ async (req, res) => {
   }
 });
 
-router.get("/:id/nearby", async (req, res, next) => {
+router.get("/:id/nearby", 
+param('id').custom((value)=>{
+  const isValid = mongoose.Types.ObjectId.isValid(value);
+  if(!isValid) throw new Error("Invalid ID");
+  return isValid;
+})
+,async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     
