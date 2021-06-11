@@ -100,7 +100,7 @@ const fileRequired = check('featured_upload').custom((value,{req})=>{
   if(req.file) return true
   
   return false;
-})
+}).withMessage("This is a required field. And must be an image.")
 router.post("/", validLat, validLon, 
   userAuthHandler, featuredUpload, fileRequired,
   async (req, res,next) => {
