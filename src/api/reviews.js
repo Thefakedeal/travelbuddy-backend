@@ -25,7 +25,9 @@ const placeExists = body("placeID").custom((value) => {
   });
 });
 
-router.post("/", userAuthHandler, placeExists, async (req, res, next) => {
+
+const starsValidate = body('stars').isInt({min:1, max:5}).withMessage("Stars must be Integer between 1-5")
+router.post("/", userAuthHandler, placeExists, starsValidate, async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
