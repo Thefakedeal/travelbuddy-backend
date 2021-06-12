@@ -38,5 +38,19 @@ UserSchema.virtual('places', {
   justOne: false,
 });
 
+UserSchema.virtual('images', {
+  ref: 'Image',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false,
+});
+
+UserSchema.virtual('reviews', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false,
+});
+
 const User = mongoose.model('User', UserSchema);
 module.exports = User;
