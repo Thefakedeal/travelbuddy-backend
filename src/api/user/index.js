@@ -58,7 +58,7 @@ router.put("/changepassword", validPassword, validOldPassword, async (req, res,n
     }
 
     const { oldPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user.id).select("+password");
     const correctPassword = await bcrypt.compare(oldPassword,user.password)
     if (!correctPassword)
       return res.status(400).json({ message: "Incorrect Password" });
