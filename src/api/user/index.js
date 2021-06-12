@@ -4,7 +4,10 @@ const router = express.Router();
 const upload = require("../../helpers/multer");
 const { userAuthHandler } = require("../../middlewares");
 const {body, validationResult} = require('express-validator')
-const User = require('../../model/User')
+const User = require('../../model/User');
+const Image = require("../../model/Image");
+const Review = require("../../model/Review");
+const Place = require("../../model/Place");
 router.use(userAuthHandler);
 
 router.get("/", (req, res) => {
@@ -70,5 +73,33 @@ router.put("/changepassword", validPassword, validOldPassword, async (req, res,n
     next(err)
   }
 });
+
+router.get('/images',async(req,res,next)=>{
+  try{
+    const images = await Image.find({user: req.user.id});
+    res.json(images);
+  }catch(err){
+    next(err)
+  }
+})
+
+router.get('/reviews',async(req,res,next)=>{
+  try{
+    const reviews = await Review.find({user: req.user.id});
+    res.json(reviews);
+  }catch(err){
+    next(err)
+  }
+})
+
+router.get('/places',async(req,res,next)=>{
+  try{
+    const places = await Place.find({user: req.user.id});
+    res.json(places);
+  }catch(err){
+    next(err)
+  }
+})
+
 
 module.exports = router;
