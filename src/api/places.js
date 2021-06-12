@@ -5,11 +5,26 @@ const ImageModel = require("../model/Image");
 const upload = require("../helpers/multer");
 const { userAuthHandler } = require("../middlewares");
 const { slice, remove } = require("../helpers/objects");
-const mongoose = require("mongoose");
+const {query, param, check, validationResult} = require('express-validator');
+const mongoose = require('mongoose')
 
-router.get("/", async (req, res) => {
+const isValidObjectId = param('id').custom((value)=>{
+  const isValid = mongoose.Types.ObjectId.isValid(value);
+  if(!isValid) throw new Error("Invalid ID");
+  return isValid;
+})
+
+const validLat = query('lat').isFloat({min:-90,max:90});
+const validLon = query('lon').isFloat({min:-180,max:180})
+
+router.get("/", validLat,validLon,
+async (req, res,next) => {
   try {
-    const places = await Place.find(
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const placeQuery = Place.find(
       {
         location: {
           $geoWithin: { $centerSphere: [ [ req.query.lon, req.query.lat ], (10/6378) ] }
@@ -17,9 +32,13 @@ router.get("/", async (req, res) => {
       },
       { flagged: 0 }
     );
+    if(req.query.name){
+      placeQuery.where('name',{$regex: req.query.name, $options: 'i'})
+    }
+    const places = await placeQuery.exec();
     res.json(places);
   } catch (err) {
-    res.status(400).send(err);
+    next(err)
   }
 });
 
@@ -34,8 +53,12 @@ router.get("/user", userAuthHandler, async (req, res, next) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", 
+isValidObjectId,
+async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     res.json(place);
@@ -44,8 +67,12 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.get("/:id/nearby", async (req, res, next) => {
+router.get("/:id/nearby", 
+isValidObjectId
+,async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     
@@ -69,9 +96,18 @@ router.get("/:id/nearby", async (req, res, next) => {
 });
 
 const featuredUpload = upload.single("featured_image");
-
-router.post("/", userAuthHandler, featuredUpload, async (req, res,next) => {
+const fileRequired = check('featured_upload').custom((value,{req})=>{
+  if(req.file) return true
+  
+  return false;
+}).withMessage("This is a required field. And must be an image.")
+router.post("/", validLat, validLon, 
+  userAuthHandler, featuredUpload, fileRequired,
+  async (req, res,next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
     const featuredImage = req.file;
     const place = new Place();
     place.name = req.body.name;
@@ -93,8 +129,12 @@ router.post("/", userAuthHandler, featuredUpload, async (req, res,next) => {
   }
 });
 
-router.put("/:id", userAuthHandler, featuredUpload, async (req, res) => {
+router.put("/:id", isValidObjectId, validLat.optional(), validLon.optional(),
+ userAuthHandler, featuredUpload, async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     // Allow Update only of place belongs to user
@@ -109,7 +149,7 @@ router.put("/:id", userAuthHandler, featuredUpload, async (req, res) => {
       req.body.featured_image = `/images/${featured_image.filename}`;
     }
 
-    if(req.body.lat,req.body.lon){
+    if(req.body.lat && req.body.lon){
       req.body.location = {
         type: "Point",
         coordinates: [req.body.lon,req.body.lat]
@@ -127,8 +167,11 @@ router.put("/:id", userAuthHandler, featuredUpload, async (req, res) => {
   }
 });
 
-router.delete("/:id", userAuthHandler, async (req, res) => {
+router.delete("/:id", isValidObjectId, userAuthHandler, async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
 
@@ -145,8 +188,11 @@ router.delete("/:id", userAuthHandler, async (req, res) => {
   }
 });
 
-router.post("/:id/flag", userAuthHandler, async (req, res, next) => {
+router.post("/:id/flag", isValidObjectId ,userAuthHandler, async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     place.flagged = true;
@@ -157,8 +203,11 @@ router.post("/:id/flag", userAuthHandler, async (req, res, next) => {
   }
 });
 
-router.get("/:id/reviews", async (req, res, next) => {
+router.get("/:id/reviews",isValidObjectId, async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     const reviews = await Review.find(
@@ -173,10 +222,13 @@ router.get("/:id/reviews", async (req, res, next) => {
   }
 });
 
-router.get("/:id/review/user", userAuthHandler, async (req, res, next) => {
+router.get("/:id/review/user", isValidObjectId, userAuthHandler, async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
     const place = await Place.findById(req.params.id, { flagged: 0 });
-    if (!place) res.sendStatus(404);
+    if (!place) res.status(404).json({message: "No Reviews"});
     const review = await Review.findOne(
       {
         place: req.params.id,
@@ -191,8 +243,11 @@ router.get("/:id/review/user", userAuthHandler, async (req, res, next) => {
   }
 });
 
-router.get("/:id/images", async (req, res, next) => {
+router.get("/:id/images", isValidObjectId ,async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     const images = await ImageModel.find(
@@ -210,8 +265,11 @@ router.get("/:id/images", async (req, res, next) => {
   }
 });
 
-router.get("/:id/images/user", userAuthHandler, async (req, res, next) => {
+router.get("/:id/images/user", isValidObjectId ,userAuthHandler, async (req, res, next) => {
   try {
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) res.status(400).json({errors: errors.array()});
+    
     const place = await Place.findById(req.params.id, { flagged: 0 });
     if (!place) res.sendStatus(404);
     const images = await ImageModel.find(

@@ -13,3 +13,43 @@ describe('GET /api/v1', () => {
       }, done);
   });
 });
+
+describe('GET /api/v1/places', () => {
+  it('responds with 400 error', (done) => {
+    request(app)
+      .get('/api/v1/places')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(400, done);
+  });
+});
+
+describe('GET /api/v1/places', () => {
+  it('responds with 400 error', (done) => {
+    request(app)
+      .get('/api/v1/places?lat=102&lon=93')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(400, done);
+  });
+});
+
+describe('GET /api/v1/places', () => {
+  it('responds with 400 error', (done) => {
+    request(app)
+      .get('/api/v1/places?lat=92&lon=190')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(400, done);
+  });
+});
+
+describe('GET /api/v1/places', () => {
+  it('responds with 400 error', (done) => {
+    request(app)
+      .get('/api/v1/places/60be67da09cc1f3296cd469')
+      .set('Accept', 'application/json')
+      .expect('Content-Type', /json/)
+      .expect(400, done);
+  });
+});

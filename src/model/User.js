@@ -14,7 +14,8 @@ const UserSchema = new Schema({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    select: false,
   },
   is_admin: {
     type: Boolean,
@@ -32,6 +33,20 @@ const UserSchema = new Schema({
 
 UserSchema.virtual('places', {
   ref: 'Place',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false,
+});
+
+UserSchema.virtual('images', {
+  ref: 'Image',
+  localField: '_id',
+  foreignField: 'user',
+  justOne: false,
+});
+
+UserSchema.virtual('reviews', {
+  ref: 'Review',
   localField: '_id',
   foreignField: 'user',
   justOne: false,
