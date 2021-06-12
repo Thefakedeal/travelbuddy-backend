@@ -149,7 +149,7 @@ router.put("/:id", isValidObjectId, validLat.optional(), validLon.optional(),
       req.body.featured_image = `/images/${featured_image.filename}`;
     }
 
-    if(req.body.lat,req.body.lon){
+    if(req.body.lat && req.body.lon){
       req.body.location = {
         type: "Point",
         coordinates: [req.body.lon,req.body.lat]
