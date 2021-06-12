@@ -2,6 +2,9 @@ const router = require("express").Router();
 const { query, validationResult, param, body} = require("express-validator");
 const User = require("../../model/User");
 const mongoose = require("mongoose");
+const Place = require("../../model/Place");
+const Image = require("../../model/Image");
+const Review = require("../../model/Review");
 
 const isValidObjectId = param("id").custom((value) => {
   const isValid = mongoose.Types.ObjectId.isValid(value);
@@ -22,7 +25,7 @@ router.get("/", admin, async (req, res, next) => {
       usersQuery.where("is_admin", req.query.is_admin);
     }
     const users = await usersQuery.exec();
-    res.json(users);
+    res.json({data: users});
   } catch (err) {
     next(err);
   }
@@ -93,9 +96,8 @@ router.get("/:id/places", isValidObjectId, async (req, res, next) => {
         return res.status(400).json({ errors: errors.array() });
       }
   
-      const user = await User.findById(req.params.id).populate('places');
-      if (!user) return res.sendStatus(404);
-      res.json(user);
+      const places = await Place.find({user: req.params.id});
+      res.json({data: places})
     } catch (err) {
       next(err);
     }
@@ -108,9 +110,8 @@ router.get("/:id/places", isValidObjectId, async (req, res, next) => {
         return res.status(400).json({ errors: errors.array() });
       }
   
-      const user = await User.findById(req.params.id).populate('images');
-      if (!user) return res.sendStatus(404);
-      res.json(user);
+      const images = await Image.find({user: req.params.id})
+      res.json({data: images});
     } catch (err) {
       next(err);
     }
@@ -123,9 +124,8 @@ router.get("/:id/places", isValidObjectId, async (req, res, next) => {
         return res.status(400).json({ errors: errors.array() });
       }
   
-      const user = await User.findById(req.params.id).populate('reviews');
-      if (!user) return res.sendStatus(404);
-      res.json(user);
+      const reviews = await Review.find({user: req.params.id});
+      res.json({data: reviews})
     } catch (err) {
       next(err);
     }

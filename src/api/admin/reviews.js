@@ -14,7 +14,7 @@ const isValidObjectId = param("id").custom((value) => {
 router.get('/', async(req,res,next)=>{
     try{
         const reviews = await Review.find({}).populate("user","-password");
-        res.json(reviews);
+        res.json({data: reviews});
     }catch(err){
         next(err)
     }
@@ -23,7 +23,8 @@ router.get('/', async(req,res,next)=>{
 router.get('/flagged', async(req,res,next)=>{
     try{
         const reviews = await Review.find({flagged: true}).populate("user","-password");
-        res.json(reviews);
+        res.json({data: reviews});
+
     }catch(err){
         next(err)
     }

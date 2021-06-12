@@ -36,7 +36,7 @@ async (req, res,next) => {
       placeQuery.where('name',{$regex: req.query.name, $options: 'i'})
     }
     const places = await placeQuery.exec();
-    res.json(places);
+    res.json({data: places});
   } catch (err) {
     next(err)
   }
@@ -47,7 +47,7 @@ router.get("/user", userAuthHandler, async (req, res, next) => {
     const places = await Place.find({
       user: req.user.id,
     });
-    res.json(places);
+    res.json({data: places});
   } catch (err) {
     next(err);
   }
@@ -89,7 +89,7 @@ isValidObjectId
         $ne: place._id
       }
     });
-    res.json(places);
+    res.json({data: places});
   } catch (err) {
     next(err);
   }
@@ -216,7 +216,7 @@ router.get("/:id/reviews",isValidObjectId, async (req, res, next) => {
       },
       { flagged: 0 }
     ).populate("user", "-password");
-    res.json(reviews);
+    res.json({data: reviews});
   } catch (err) {
     next(err);
   }
@@ -259,7 +259,7 @@ router.get("/:id/images", isValidObjectId ,async (req, res, next) => {
       },
       {}
     ).populate("user", "-password");
-    res.json(images);
+    res.json({data: images});
   } catch (err) {
     return next(err);
   }
@@ -282,7 +282,7 @@ router.get("/:id/images/user", isValidObjectId ,userAuthHandler, async (req, res
       },
       {}
     ).populate("user", "-password");
-    res.json(images);
+    res.json({data: images});
   } catch (err) {
     return next(err);
   }

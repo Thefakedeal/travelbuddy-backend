@@ -15,7 +15,7 @@ const isValidObjectId = param("id").custom((value) => {
 router.get('/', async(req,res,next)=>{
     try{
         const images = await Image.find({}).populate("user","-password");
-        res.json(images);
+        res.json({data: images});
     }catch(err){
         next(err)
     }
@@ -25,7 +25,7 @@ router.get('/', async(req,res,next)=>{
 router.get('/flagged', async(req,res,next)=>{
     try{
         const images = await Image.find({flagged: true}).populate("user","-password");
-        res.json(images);
+        res.json({data: images});
     }catch(err){
         next(err)
     }

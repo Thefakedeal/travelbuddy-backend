@@ -77,7 +77,7 @@ router.put("/changepassword", validPassword, validOldPassword, async (req, res,n
 router.get('/images',async(req,res,next)=>{
   try{
     const images = await Image.find({user: req.user.id});
-    res.json(images);
+    res.json({data: images});
   }catch(err){
     next(err)
   }
@@ -86,7 +86,7 @@ router.get('/images',async(req,res,next)=>{
 router.get('/reviews',async(req,res,next)=>{
   try{
     const reviews = await Review.find({user: req.user.id});
-    res.json(reviews);
+    res.json({data: reviews});
   }catch(err){
     next(err)
   }
@@ -95,7 +95,7 @@ router.get('/reviews',async(req,res,next)=>{
 router.get('/places',async(req,res,next)=>{
   try{
     const places = await Place.find({user: req.user.id});
-    res.json(places);
+    res.json({data: places});
   }catch(err){
     next(err)
   }

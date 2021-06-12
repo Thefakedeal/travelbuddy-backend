@@ -20,7 +20,7 @@ router.get("/", async (req, res, next) => {
       query.where('name').regex(req.query.name)
     }
     const places = await query.exec();
-    res.json(places);
+    res.json({data: places});
   } catch (err) {
     next(err);
   }
@@ -33,7 +33,7 @@ router.get("/flagged", async (req, res, next) => {
       query.where('name').regex(req.query.name)
     }
     const places = await query.exec();
-    res.json(places);
+    res.json({data: places});
   } catch (err) {
     next(err);
   }
@@ -83,7 +83,7 @@ router.get("/:id/reviews", isValidObjectId, async (req, res, next) => {
     const reviews = await Review.find({
       place: req.params.id,
     }).populate("user", "-password");
-    res.json(reviews);
+    res.json({data: reviews});
   } catch (err) {
     next(err);
   }
@@ -99,7 +99,7 @@ router.get("/:id/images", isValidObjectId, async (req, res, next) => {
     const images = await ImageModel.find({
       place: req.params.id,
     }).populate("user", "-password");
-    res.json(images);
+    res.json({data: images});
   } catch (err) {
     return next(err);
   }
