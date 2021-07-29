@@ -16,10 +16,10 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-
+	
       const user = await User.findOne({
         email: req.body.email,
-      });
+      }).select('+password').exec();
       if (!user) {
         return res.status(400).json({
           message: "User Doesn't exist",

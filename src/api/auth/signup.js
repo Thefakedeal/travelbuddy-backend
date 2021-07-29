@@ -21,6 +21,7 @@ const validPassword = body('password').isString().isLength({min:5});
 
 router.post('/', validEmail, validPassword,async (req, res) => {
   try {
+  	console.log(req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
